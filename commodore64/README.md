@@ -1,14 +1,10 @@
-# Relay Tracker - Commodore 64 Version
+# GPIO Tracker - Commodore 64 Version
 
-Version: 2.1 by Deadline
+Version: 1.0 by Deadline
 
-v2.1 fixes vicrel mode corruption bug on load
+This program will set the user port output for 32 pin GPIO board from Dorktronic.
 
-This program will set the user port output for relay boards such as the VIC-Rel, or 8 channel relay boards.
-
-Up to 256 Tracks, Up to 31 Patterns of 256 different states, Speed up or Slow down during playback, Stop playback with the programmable commands, control additional daisy chained machines running relay tracker using joystick control mode (JCM). No limit to the number of daisy chained relay trackers.
-
-Schematics for 8 channel relay board, and JCM mode are in the schematics folder.
+- (THIS IS SUBJECT TO CHANGE) Up to 256 Tracks, Up to 31 Patterns of 256 different states, Speed up or Slow down during playback, Stop playback with the programmable commands, control additional daisy chained machines running relay tracker using joystick control mode (JCM). No limit to the number of daisy chained relay trackers.
 
 Notes: If you're going to attempt to compile this, you'll need the Macros and Constants from https://github.com/cityxen/Commodore64_Programming repo. Relay Tracker Data is located from $4000 - $9fff
 
@@ -47,6 +43,8 @@ F4 - Track Block Length UP
 Cursor Down - Move Pattern Cursor Down
 
 Cursor Up - Move Pattern Cursor Up
+
+CTRL - Advance inner track cursor
 
 1-8 - Toggle relay
 
@@ -89,5 +87,3 @@ J - Toggle Joystick Control Mode (JCM Modes: OFF,PLAY)
 N - Clear memory
 
 SPACE - Play/Pause
-
-V - VIC-Rel mode (On or Off)
