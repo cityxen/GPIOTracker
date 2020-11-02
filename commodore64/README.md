@@ -1,4 +1,5 @@
 # GPIO Tracker - Commodore 64 Version
+# 🌆🅲🅸🆃🆈🆇🅴🅽☯️ 8 & 16 bit hijinx and programming!
 
 Version: 1.0 by Deadline
 
