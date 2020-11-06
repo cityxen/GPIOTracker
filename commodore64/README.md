@@ -13,7 +13,7 @@ If you're going to attempt to compile this, you'll need:
 * Edit Build.bat to set it for your environment
 * DASM compiler
 * the Macros and Constants from https://github.com/cityxen/Commodore64_Programming repo
-* Relay Tracker Data is located from $4000 - $9fff
+* GPIOTracker Data is located from $4000 - $9fff (Note this could be reworked to use RAM Expansion devices in the future, or some other enhanced method than it is using now)
 
 
 ## Commands:
