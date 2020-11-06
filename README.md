@@ -6,7 +6,7 @@ Version: 1.0 by Deadline
 
 This program will set the user port output for 32 pin GPIO board from Dorktronic.
 
-- (THIS IS SUBJECT TO CHANGE) Up to 256 Tracks, Up to 16 Patterns of 256 different states, Speed up or Slow down during playback, Stop playback with the programmable commands, control additional daisy chained machines running relay tracker using joystick control mode (JCM). No limit to the number of daisy chained relay trackers.
+- (THIS IS SUBJECT TO CHANGE) Up to 256 Tracks, Up to 16 Patterns of 256 different states, Speed up or Slow down during playback, Stop playback with the programmable commands, control additional daisy chained machines running GPIO/Relay Tracker using joystick control mode (JCM). Will work with Relay Tracker. No limit to the number of daisy chained GPIO/Relay Trackers.
 
 ## Notes:
 If you're going to attempt to compile this, you'll need:
@@ -14,6 +14,7 @@ If you're going to attempt to compile this, you'll need:
 * DASM compiler
 * the Macros and Constants from https://github.com/cityxen/Commodore64_Programming repo
 * GPIOTracker Data is located from $4000 - $9fff (Note this could be reworked to use RAM Expansion devices in the future, or some other enhanced method than it is using now)
+* Each block of GPIOTracker data is 1280 bytes)
 
 
 ## Commands:
