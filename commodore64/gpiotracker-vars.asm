@@ -1,10 +1,10 @@
 //////////////////////////////////////////////////////////////////////////
-// Relay Tracker (VARS)
+// GPIOTracker (VARS)
 //
-// Version: 2.1
+// Version: 1
 // Author: Deadline
 //
-// 2019 CityXen
+// 2020 CityXen
 //////////////////////////////////////////////////////////////////////////
 
 // zero page vars
@@ -56,12 +56,12 @@
 .const pattern_block_start_lo= $00
 .const pattern_block_start_hi= $42
 .const pattern_min           = $00
-.const pattern_max           = $1e
+.const pattern_max           = $0f
 
 // command/data stuff
-.const command_block_start     = $4300
+.const command_block_start     = $4600
 .const command_block_start_lo  = $00
-.const command_block_start_hi  = $43
+.const command_block_start_hi  = $46
 
 // command = xx------
 // data    = --xxxxxx

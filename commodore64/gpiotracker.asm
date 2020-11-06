@@ -23,8 +23,11 @@
 //////////////////////////////////////////////////////////////////////////
 
 .segment Code []
-.file [name="gpiotracker.prg",segments="Code"]
-.disk [filename="gpiotracker.d64", name="GPIOTRACKER", id="CXN20" ] { [name="GPIOTRACKER", type="prg",  segments="Code"] }
+.file [name="gpiotracker.prg",segments="Code,Main,Dorktronic"]
+.disk [filename="gpiotracker.d64", name="GPIOTRACKER", id="CXN20" ]  {
+        [name="GPIOTRACKER", type="prg",  segments="Code,Dorktronic,Main"],
+        [name="I2C.ML", type="prg", segments="Dorktronic"]
+    }
 
 *=$2ff0 "constants"
 #import "../../Commodore64_Programming/include/Constants.asm"
@@ -36,6 +39,12 @@
 #import "gpiotracker-charset.asm"
 *=$3800 "screendata"
 #import "gpiotracker-screen.asm"
+
+.segment Dorktronic [outPrg="i2c.ml.prg"]
+*=$2d00 "dorktronic i2c"
+.import binary "i2c.ml"
+
+.segment Main []
 
 //////////////////////////////////////////////////////////
 // START OF PROGRAM
@@ -218,6 +227,8 @@ check_semicolon_hit:
     cmp #pattern_max
     beq check_semicolon_nope
     inc track_block,x
+
+    
 check_semicolon_nope:
     jsr refresh_track_blocks
     jsr calculate_pattern_block
@@ -748,7 +759,7 @@ init_fn_loop:
     rts
 
 initial_filename:
-.text "filename.rtd"
+.text "filename.gtd"
 .byte 0,0,0,0
 
 ////////////////////////////////////////////////////
@@ -900,24 +911,22 @@ ds_fn_2:
 ////////////////////////////////////////////////////
 // Draw Relays Macro
 .macro DrawRelays(xpos,ypos) { // Macro for drawing relay settings
-
-    ldy vic_rel_mode
-
     pha
+
     clc
     lsr
     tax
     bcc dr_1_1
     lda #90
-    sta SCREEN_RAM+xpos+ypos*40,y
+    sta SCREEN_RAM+xpos+ypos*40
     lda #02
-    sta COLOR_RAM+xpos+ypos*40,y
+    sta COLOR_RAM+xpos+ypos*40
     jmp dr_1_2
 dr_1_1:
     lda #94
-    sta SCREEN_RAM+xpos+ypos*40,y
+    sta SCREEN_RAM+xpos+ypos*40
     lda #11
-    sta COLOR_RAM+xpos+ypos*40,y
+    sta COLOR_RAM+xpos+ypos*40
 dr_1_2:
     clc
     txa
@@ -925,15 +934,15 @@ dr_1_2:
     tax
     bcc dr_2_1
     lda #90
-    sta SCREEN_RAM+1+xpos+ypos*40,y
+    sta SCREEN_RAM+1+xpos+ypos*40
     lda #02
-    sta COLOR_RAM+1+xpos+ypos*40,y
+    sta COLOR_RAM+1+xpos+ypos*40
     jmp dr_2_2
 dr_2_1:
     lda #94
-    sta SCREEN_RAM+1+xpos+ypos*40,y
+    sta SCREEN_RAM+1+xpos+ypos*40
     lda #11
-    sta COLOR_RAM+1+xpos+ypos*40,y
+    sta COLOR_RAM+1+xpos+ypos*40
 dr_2_2:
     clc
     txa
@@ -941,15 +950,15 @@ dr_2_2:
     tax
     bcc dr_3_1
     lda #90
-    sta SCREEN_RAM+2+xpos+ypos*40,y
+    sta SCREEN_RAM+2+xpos+ypos*40
     lda #02
-    sta COLOR_RAM+2+xpos+ypos*40,y
+    sta COLOR_RAM+2+xpos+ypos*40
     jmp dr_3_2
 dr_3_1:
     lda #94
-    sta SCREEN_RAM+2+xpos+ypos*40,y
+    sta SCREEN_RAM+2+xpos+ypos*40
     lda #11
-    sta COLOR_RAM+2+xpos+ypos*40,y
+    sta COLOR_RAM+2+xpos+ypos*40
 dr_3_2:
     clc
     txa
@@ -957,15 +966,15 @@ dr_3_2:
     tax
     bcc dr_4_1
     lda #90
-    sta SCREEN_RAM+3+xpos+ypos*40,y
+    sta SCREEN_RAM+3+xpos+ypos*40
     lda #02
-    sta COLOR_RAM+3+xpos+ypos*40,y
+    sta COLOR_RAM+3+xpos+ypos*40
     jmp dr_4_2
 dr_4_1:
     lda #94
-    sta SCREEN_RAM+3+xpos+ypos*40,y
+    sta SCREEN_RAM+3+xpos+ypos*40
     lda #11
-    sta COLOR_RAM+3+xpos+ypos*40,y
+    sta COLOR_RAM+3+xpos+ypos*40
 dr_4_2:
     clc
     txa
@@ -973,15 +982,15 @@ dr_4_2:
     tax
     bcc dr_5_1
     lda #90
-    sta SCREEN_RAM+4+xpos+ypos*40,y
+    sta SCREEN_RAM+4+xpos+ypos*40
     lda #02
-    sta COLOR_RAM+4+xpos+ypos*40,y
+    sta COLOR_RAM+4+xpos+ypos*40
     jmp dr_5_2
 dr_5_1:
     lda #94
-    sta SCREEN_RAM+4+xpos+ypos*40,y
+    sta SCREEN_RAM+4+xpos+ypos*40
     lda #11
-    sta COLOR_RAM+4+xpos+ypos*40,y
+    sta COLOR_RAM+4+xpos+ypos*40
 dr_5_2:
     clc
     txa
@@ -989,15 +998,15 @@ dr_5_2:
     tax
     bcc dr_6_1
     lda #90
-    sta SCREEN_RAM+5+xpos+ypos*40,y
+    sta SCREEN_RAM+5+xpos+ypos*40
     lda #02
-    sta COLOR_RAM+5+xpos+ypos*40,y
+    sta COLOR_RAM+5+xpos+ypos*40
     jmp dr_6_2
 dr_6_1:
     lda #94
-    sta SCREEN_RAM+5+xpos+ypos*40,y
+    sta SCREEN_RAM+5+xpos+ypos*40
     lda #11
-    sta COLOR_RAM+5+xpos+ypos*40,y
+    sta COLOR_RAM+5+xpos+ypos*40
 dr_6_2:
     cpy #$01
     beq dr_8_2
@@ -1007,15 +1016,15 @@ dr_6_2:
     tax
     bcc dr_7_1
     lda #90
-    sta SCREEN_RAM+6+xpos+ypos*40,y
+    sta SCREEN_RAM+6+xpos+ypos*40
     lda #02
-    sta COLOR_RAM+6+xpos+ypos*40,y
+    sta COLOR_RAM+6+xpos+ypos*40
     jmp dr_7_2
 dr_7_1:
     lda #94
-    sta SCREEN_RAM+6+xpos+ypos*40,y
+    sta SCREEN_RAM+6+xpos+ypos*40
     lda #11
-    sta COLOR_RAM+6+xpos+ypos*40,y
+    sta COLOR_RAM+6+xpos+ypos*40
 dr_7_2:
     clc
     txa
@@ -1023,16 +1032,18 @@ dr_7_2:
     tax
     bcc dr_8_1
     lda #90
-    sta SCREEN_RAM+7+xpos+ypos*40,y
+    sta SCREEN_RAM+7+xpos+ypos*40
     lda #02
-    sta COLOR_RAM+7+xpos+ypos*40,y
+    sta COLOR_RAM+7+xpos+ypos*40
     jmp dr_8_2
 dr_8_1:
     lda #94
-    sta SCREEN_RAM+7+xpos+ypos*40,y
+    sta SCREEN_RAM+7+xpos+ypos*40
     lda #11
-    sta COLOR_RAM+7+xpos+ypos*40,y
+    sta COLOR_RAM+7+xpos+ypos*40
 dr_8_2:
+
+
     pla
 }
 
@@ -1080,30 +1091,11 @@ jcm_modes_text:
 .macro ClearPatternLine(line) {
     lda #$20 // Clear pattern area
     ldx #$00
-rp_loop1:
-    sta SCREEN_RAM+line*40+1,x // POS Column
-    sta SCREEN_RAM+line*40+17,x // VA Column
+!rp_loop:
+    sta SCREEN_RAM+line*40,x
     inx
-    cpx #$04
-    bne rp_loop1
-    ldx#$00
-rp_loop2:
-    sta SCREEN_RAM+line*40+6,x // RELAY Column
-    inx
-    cpx#$0a
-    bne rp_loop2
-    ldx #$00
-rp_loop3:
-    sta SCREEN_RAM+line*40+22,x // Command Column
-    inx
-    cpx #$09
-    bne rp_loop3
-    ldx #$00
-rp_loop4:
-    sta SCREEN_RAM+line*40+32,x // Command DATA Column
-    inx
-    cpx #$07
-    bne rp_loop4
+    cpx #40
+    bne !rp_loop-
 }
 
 ////////////////////////////////////////////////////
@@ -1140,15 +1132,15 @@ dc_loop1:
     sta SCREEN_RAM+xpos+ypos*40,y
     inx
     iny
-    cpy #$07
+    cpy #$03
     bne dc_loop1
 }
 
 command_table:
-.text "-------"
-.text "speed  "
-.text "stop   "
-.text "future "
+.text "--"
+.text "sp"
+.text "pa"
+.text "fu"
 
 ////////////////////////////////////////////////////
 // Draw Command Data Macro
@@ -1178,18 +1170,18 @@ rp_v1:
     jmp rp_v2
 rp_v1_2:
     sta zp_pointer_lo
-    PrintHex(2,11)
+    PrintHex(0,11)
     ldx #$00
     lda (zp_pointer_lo,x)
-    DrawRelays(7,11)
-    PrintHex(18,11)
+    DrawRelays(3,11)
+    // PrintHex(18,11)
     inc zp_pointer_hi
     ldx #$00
     lda (zp_pointer_lo,x)
-    DrawCommand(23,11)
+    DrawCommand(36,11)
     ldx #$00
     lda (zp_pointer_lo,x)
-    DrawCommandData(35,11)
+    DrawCommandData(37,11)
     dec zp_pointer_hi
 rp_v2:
     clc
@@ -1200,18 +1192,18 @@ rp_v2:
     jmp rp_v3
 rp_v2_2:
     sta zp_pointer_lo
-    PrintHex(2,12)
+    PrintHex(0,12)
     ldx #$00
     lda (zp_pointer_lo,x)
-    DrawRelays(7,12)
-    PrintHex(18,12)
+    DrawRelays(3,12)
+    // PrintHex(18,12)
     inc zp_pointer_hi
     ldx #$00
     lda (zp_pointer_lo,x)
-    DrawCommand(23,12)
+    DrawCommand(36,12)
     ldx #$00
     lda (zp_pointer_lo,x)
-    DrawCommandData(35,12)
+    DrawCommandData(37,12)
     dec zp_pointer_hi
 rp_v3:
     clc
@@ -1222,18 +1214,18 @@ rp_v3:
     jmp rp_v4
 rp_v3_2:
     sta zp_pointer_lo
-    PrintHex(2,13)
+    PrintHex(0,13)
     ldx #$00
     lda (zp_pointer_lo,x)
-    DrawRelays(7,13)
-    PrintHex(18,13)
+    DrawRelays(3,13)
+    // PrintHex(18,13)
     inc zp_pointer_hi
     ldx #$00
     lda (zp_pointer_lo,x)
-    DrawCommand(23,13)
+    DrawCommand(36,13)
     ldx #$00
     lda (zp_pointer_lo,x)
-    DrawCommandData(35,13)
+    DrawCommandData(37,13)
     dec zp_pointer_hi
 rp_v4:
     clc
@@ -1244,18 +1236,18 @@ rp_v4:
     jmp rp_v5
 rp_v4_2:
     sta zp_pointer_lo
-    PrintHex(2,14)
+    PrintHex(0,14)
     ldx #$00
     lda (zp_pointer_lo,x)
-    DrawRelays(7,14)
-    PrintHex(18,14)
+    DrawRelays(3,14)
+    // PrintHex(18,14)
     inc zp_pointer_hi
     ldx #$00
     lda (zp_pointer_lo,x)
-    DrawCommand(23,14)
+    DrawCommand(36,14)
     ldx #$00
     lda (zp_pointer_lo,x)
-    DrawCommandData(35,14)
+    DrawCommandData(37,14)
     dec zp_pointer_hi
 rp_v5:
     clc
@@ -1266,18 +1258,18 @@ rp_v5:
     jmp rp_v6
 rp_v5_2:
     sta zp_pointer_lo
-    PrintHex(2,15)
+    PrintHex(0,15)
     ldx #$00
     lda (zp_pointer_lo,x)
-    DrawRelays(7,15)
-    PrintHex(18,15)
+    DrawRelays(3,15)
+    // PrintHex(18,15)
     inc zp_pointer_hi
     ldx #$00
     lda (zp_pointer_lo,x)
-    DrawCommand(23,15)
+    DrawCommand(36,15)
     ldx #$00
     lda (zp_pointer_lo,x)
-    DrawCommandData(35,15)
+    DrawCommandData(37,15)
     dec zp_pointer_hi
 rp_v6:
     clc
@@ -1288,34 +1280,34 @@ rp_v6:
     jmp rp_v7
 rp_v6_2:
     sta zp_pointer_lo
-    PrintHex(2,16)
+    PrintHex(0,16)
     ldx #$00
     lda (zp_pointer_lo,x)
-    DrawRelays(7,16)
-    PrintHex(18,16)
+    DrawRelays(3,16)
+    // PrintHex(18,16)
     inc zp_pointer_hi
     ldx #$00
     lda (zp_pointer_lo,x)
-    DrawCommand(23,16)
+    DrawCommand(36,16)
     ldx #$00
     lda (zp_pointer_lo,x)
-    DrawCommandData(35,16)
+    DrawCommandData(37,16)
     dec zp_pointer_hi
 rp_v7:
     lda pattern_cursor
     sta zp_pointer_lo
-    PrintHex(2,17)
+    PrintHex(0,17)
     ldx #$00
     lda (zp_pointer_lo,x)
-    DrawRelays(7,17)
-    PrintHex(18,17)
+    DrawRelays(3,17)
+    // PrintHex(18,17)
     inc zp_pointer_hi
     ldx #$00
     lda (zp_pointer_lo,x)
-    DrawCommand(23,17)
+    DrawCommand(36,17)
     ldx #$00
     lda (zp_pointer_lo,x)
-    DrawCommandData(35,17)
+    DrawCommandData(37,17)
     dec zp_pointer_hi
 rp_v8:
     clc
@@ -1326,18 +1318,18 @@ rp_v8:
     jmp rp_v9
 rp_v8_2:
     sta zp_pointer_lo
-    PrintHex(2,18)
+    PrintHex(0,18)
     ldx #$00
     lda (zp_pointer_lo,x)
-    DrawRelays(7,18)
-    PrintHex(18,18)
+    DrawRelays(3,18)
+    // PrintHex(18,18)
     inc zp_pointer_hi
     ldx #$00
     lda (zp_pointer_lo,x)
-    DrawCommand(23,18)
+    DrawCommand(36,18)
     ldx #$00
     lda (zp_pointer_lo,x)
-    DrawCommandData(35,18)
+    DrawCommandData(37,18)
     dec zp_pointer_hi
 rp_v9:
     clc
@@ -1348,18 +1340,18 @@ rp_v9:
     jmp rp_v10
 rp_v9_2:
     sta zp_pointer_lo
-    PrintHex(2,19)
+    PrintHex(0,19)
     ldx #$00
     lda (zp_pointer_lo,x)
-    DrawRelays(7,19)
-    PrintHex(18,19)
+    DrawRelays(3,19)
+    // PrintHex(18,19)
     inc zp_pointer_hi
     ldx #$00
     lda (zp_pointer_lo,x)
-    DrawCommand(23,19)
+    DrawCommand(36,19)
     ldx #$00
     lda (zp_pointer_lo,x)
-    DrawCommandData(35,19)
+    DrawCommandData(37,19)
     dec zp_pointer_hi
 rp_v10:
     clc
@@ -1370,18 +1362,18 @@ rp_v10:
     jmp rp_v11
 rp_v10_2:
     sta zp_pointer_lo
-    PrintHex(2,20)
+    PrintHex(0,20)
     ldx #$00
     lda (zp_pointer_lo,x)
-    DrawRelays(7,20)
-    PrintHex(18,20)
+    DrawRelays(3,20)
+    // PrintHex(18,20)
     inc zp_pointer_hi
     ldx #$00
     lda (zp_pointer_lo,x)
-    DrawCommand(23,20)
+    DrawCommand(36,20)
     ldx #$00
     lda (zp_pointer_lo,x)
-    DrawCommandData(35,20)
+    DrawCommandData(37,20)
     dec zp_pointer_hi
 rp_v11:
     clc
@@ -1392,18 +1384,18 @@ rp_v11:
     jmp rp_v12
 rp_v11_2:
     sta zp_pointer_lo
-    PrintHex(2,21)
+    PrintHex(0,21)
     ldx #$00
     lda (zp_pointer_lo,x)
-    DrawRelays(7,21)
-    PrintHex(18,21)
+    DrawRelays(3,21)
+    // PrintHex(18,21)
     inc zp_pointer_hi
     ldx #$00
     lda (zp_pointer_lo,x)
-    DrawCommand(23,21)
+    DrawCommand(36,21)
     ldx #$00
     lda (zp_pointer_lo,x)
-    DrawCommandData(35,21)
+    DrawCommandData(37,21)
     dec zp_pointer_hi
 rp_v12:
     clc
@@ -1414,18 +1406,18 @@ rp_v12:
     jmp rp_v13
 rp_v12_2:
     sta zp_pointer_lo
-    PrintHex(2,22)
+    PrintHex(0,22)
     ldx #$00
     lda (zp_pointer_lo,x)
-    DrawRelays(7,22)
-    PrintHex(18,22)
+    DrawRelays(3,22)
+    // PrintHex(18,22)
     inc zp_pointer_hi
     ldx #$00
     lda (zp_pointer_lo,x)
-    DrawCommand(23,22)
+    DrawCommand(36,22)
     ldx #$00
     lda (zp_pointer_lo,x)
-    DrawCommandData(35,22)
+    DrawCommandData(37,22)
     dec zp_pointer_hi
 rp_v13:
     clc
@@ -1436,18 +1428,18 @@ rp_v13:
     jmp rp_v14
 rp_v13_2:
     sta zp_pointer_lo
-    PrintHex(2,23)
+    PrintHex(0,23)
     ldx #$00
     lda (zp_pointer_lo,x)
-    DrawRelays(7,23)
-    PrintHex(18,23)
+    DrawRelays(3,23)
+    // PrintHex(18,23)
     inc zp_pointer_hi
     ldx #$00
     lda (zp_pointer_lo,x)
-    DrawCommand(23,23)
+    DrawCommand(36,23)
     ldx #$00
     lda (zp_pointer_lo,x)
-    DrawCommandData(35,23)
+    DrawCommandData(37,23)
 rp_v14:
     rts
 
@@ -2002,9 +1994,9 @@ draw_current_relays:
     jsr calculate_pattern_block
     ldx #$00
     lda (zp_pointer_lo,x) // Load the value from memory
-    DrawRelays(7,17)      // Draw current relay at top right of screen
-    DrawRelays(7,1)      // Draw current relay at current in track pattern cursor position
-    PrintHex(18,17)       // Print hex value of current relay in track pattern cursor position
+    // DrawRelays(7,2)       // Draw current relay at top of screen
+    DrawRelays(3,17)      // Draw current relay at current in track pattern cursor position
+    // PrintHex(18,17)       // Print hex value of current relay in track pattern cursor position
 
     lda vic_rel_mode
     cmp #$00
@@ -2257,7 +2249,7 @@ calculate_pattern_block:
     beq cpb_2
 cpb_1:
     lda zp_pointer_hi
-    adc #$02
+    adc #$04
     sta zp_pointer_hi
     dex
     cpx #$00
