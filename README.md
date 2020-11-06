@@ -55,11 +55,15 @@ Cursor Up - Move Pattern Cursor Up
 
 CTRL - Advance inner track cursor
 
-1-8 - Toggle relay
+Cursor Right - Move GPIO Cursor right
 
-MINUS - Turn off all relays
+Cursor Left - Move GPIO Cursor left
 
-PLUS - Turn on all relays
+1-8 - Toggle relay within current GPIO Cursor
+
+MINUS - Turn off all relays within current GPIO Cursor
+
+PLUS - Turn on all relays within current GPIO Cursor
 
 HOME - Move Pattern Cursor to TOP
 
