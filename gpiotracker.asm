@@ -9,7 +9,7 @@
 //
 // As seen on our youtube channel:
 // https://www.youtube.com/CityXen
-//
+// 
 // Assembly files are for use with KickAssembler
 // http://theweb.dk/KickAssembler
 //
@@ -910,9 +910,123 @@ ds_fn_2:
 
 ////////////////////////////////////////////////////
 // Draw Relays Macro
-.macro DrawRelays(xpos,ypos) { // Macro for drawing relay settings
-    pha
+.const gpio_off       = 94
+.const gpio_off_color = DARK_GREY
+.const gpio_on        = 90
+.const gpio_on_color  = RED
+xpos:
+.byte 0
+ypos:
+.byte 0
+drawgpio_var:
+.byte 0,0
+ 
+drawgpio:
+// data start at caclulate_pattern_block (a)
+// x=xpos
+// y=ypos
+    stx xpos
+    sty ypos
+    ldy #$00
+!drawgp:
+/*
+    jsr calculate_pattern_block
+    lda pattern_cursor,y
+    sta zp_pointer_lo
+    ldx #$00
+    lda (zp_pointer_lo,x)
+    */
+    ldy #$00
+drawgp_x:
+    clc
+    lsr
+    sta drawgpio_var
+    bcc !drawgp++
+    lda #<SCREEN_RAM
+    sta zp_pointer_lo
+    lda #>SCREEN_RAM
+    sta zp_pointer_hi
+    lda zp_pointer_lo
+    clc
+    adc xpos
+    sta zp_pointer_lo
+    bcc !drawgp+
+    inc zp_pointer_hi
+!drawgp:
+    ldx ypos
+!drawgp_in1:
+    lda zp_pointer_lo
+    clc
+    adc #40
+    sta zp_pointer_lo
+    bcc !drawgp_in1+
+    inc zp_pointer_hi
+!drawgp_in1:
+    dex
+    cpx #$00
+    bne !drawgp_in1--
 
+    lda #gpio_off
+    sta (zp_pointer_lo),y // (ypos*40)+gpio+(i*8)
+    jmp !drawgp+++
+
+!drawgp:
+    lda #<SCREEN_RAM
+    sta zp_pointer_lo
+    lda #>SCREEN_RAM
+    sta zp_pointer_hi
+    lda zp_pointer_lo
+    clc
+    adc xpos
+    sta zp_pointer_lo
+    bcc !drawgp+
+    inc zp_pointer_hi    
+!drawgp:
+    ldx ypos
+!drawgp_in1:
+    lda zp_pointer_lo
+    clc
+    adc #40
+    sta zp_pointer_lo
+    bcc !drawgp_in1+
+    inc zp_pointer_hi
+!drawgp_in1:
+    dex
+    cpx #$00
+    bne !drawgp_in1--
+
+    lda #gpio_on
+    sta (zp_pointer_lo),y // (ypos*40)+gpio+(i*8)
+
+!drawgp:
+    clc
+    
+    lda drawgpio_var
+    
+    iny
+    cpy #32
+    bne drawgp_x
+
+!drawgp:
+    rts
+
+    // lda #gpio_off_color
+    // sta COLOR_RAM+xpos+(ypos*40)+gpio+(i*8)
+    // jmp !drawgp++
+/*
+!drawgp:
+    lda #gpio_on
+    sta SCREEN_RAM+xpos+(ypos*40)+gpio+(i*8)
+    lda #gpio_on_color
+    sta COLOR_RAM+xpos+(ypos*40)+gpio+(i*8)
+!drawgp:
+
+*/
+    
+    
+
+
+/*
     clc
     lsr
     tax
@@ -1046,6 +1160,7 @@ dr_8_2:
 
     pla
 }
+*/
 
 ////////////////////////////////////////////////////
 // Refresh Joystick Control Mode
@@ -1173,7 +1288,10 @@ rp_v1_2:
     PrintHex(0,11)
     ldx #$00
     lda (zp_pointer_lo,x)
-    DrawRelays(3,11)
+    ldx #3
+    ldy #11
+    jsr drawgpio
+    // DrawRelays(3,11)
     // PrintHex(18,11)
     inc zp_pointer_hi
     ldx #$00
@@ -1195,7 +1313,10 @@ rp_v2_2:
     PrintHex(0,12)
     ldx #$00
     lda (zp_pointer_lo,x)
-    DrawRelays(3,12)
+    ldx #3
+    ldy #12
+    jsr drawgpio
+    //DrawRelays(3,12)
     // PrintHex(18,12)
     inc zp_pointer_hi
     ldx #$00
@@ -1217,7 +1338,10 @@ rp_v3_2:
     PrintHex(0,13)
     ldx #$00
     lda (zp_pointer_lo,x)
-    DrawRelays(3,13)
+    ldx #3
+    ldy #13
+    jsr drawgpio
+    // DrawRelays(3,13)
     // PrintHex(18,13)
     inc zp_pointer_hi
     ldx #$00
@@ -1239,7 +1363,10 @@ rp_v4_2:
     PrintHex(0,14)
     ldx #$00
     lda (zp_pointer_lo,x)
-    DrawRelays(3,14)
+    ldx #3
+    ldy #14
+    jsr drawgpio
+    // DrawRelays(3,14)
     // PrintHex(18,14)
     inc zp_pointer_hi
     ldx #$00
@@ -1261,7 +1388,10 @@ rp_v5_2:
     PrintHex(0,15)
     ldx #$00
     lda (zp_pointer_lo,x)
-    DrawRelays(3,15)
+    ldx #3
+    ldy #15
+    jsr drawgpio
+    // DrawRelays(3,15)
     // PrintHex(18,15)
     inc zp_pointer_hi
     ldx #$00
@@ -1283,7 +1413,10 @@ rp_v6_2:
     PrintHex(0,16)
     ldx #$00
     lda (zp_pointer_lo,x)
-    DrawRelays(3,16)
+    ldx #3
+    ldy #16
+    jsr drawgpio
+    // DrawRelays(3,16)
     // PrintHex(18,16)
     inc zp_pointer_hi
     ldx #$00
@@ -1299,7 +1432,10 @@ rp_v7:
     PrintHex(0,17)
     ldx #$00
     lda (zp_pointer_lo,x)
-    DrawRelays(3,17)
+    ldx #3
+    ldy #17
+    jsr drawgpio
+    // DrawRelays(3,17)
     // PrintHex(18,17)
     inc zp_pointer_hi
     ldx #$00
@@ -1321,7 +1457,10 @@ rp_v8_2:
     PrintHex(0,18)
     ldx #$00
     lda (zp_pointer_lo,x)
-    DrawRelays(3,18)
+    ldx #3
+    ldy #18
+    jsr drawgpio
+    // DrawRelays(3,18)
     // PrintHex(18,18)
     inc zp_pointer_hi
     ldx #$00
@@ -1343,7 +1482,10 @@ rp_v9_2:
     PrintHex(0,19)
     ldx #$00
     lda (zp_pointer_lo,x)
-    DrawRelays(3,19)
+    ldx #3
+    ldy #19
+    jsr drawgpio    
+    // DrawRelays(3,19)
     // PrintHex(18,19)
     inc zp_pointer_hi
     ldx #$00
@@ -1365,7 +1507,10 @@ rp_v10_2:
     PrintHex(0,20)
     ldx #$00
     lda (zp_pointer_lo,x)
-    DrawRelays(3,20)
+    ldx #3
+    ldy #20
+    jsr drawgpio
+    // DrawRelays(3,20)
     // PrintHex(18,20)
     inc zp_pointer_hi
     ldx #$00
@@ -1387,7 +1532,10 @@ rp_v11_2:
     PrintHex(0,21)
     ldx #$00
     lda (zp_pointer_lo,x)
-    DrawRelays(3,21)
+    ldx #3
+    ldy #21
+    jsr drawgpio    
+    // DrawRelays(3,21)
     // PrintHex(18,21)
     inc zp_pointer_hi
     ldx #$00
@@ -1409,7 +1557,10 @@ rp_v12_2:
     PrintHex(0,22)
     ldx #$00
     lda (zp_pointer_lo,x)
-    DrawRelays(3,22)
+    ldx #3
+    ldy #22
+    jsr drawgpio
+    // DrawRelays(3,22)
     // PrintHex(18,22)
     inc zp_pointer_hi
     ldx #$00
@@ -1431,7 +1582,10 @@ rp_v13_2:
     PrintHex(0,23)
     ldx #$00
     lda (zp_pointer_lo,x)
-    DrawRelays(3,23)
+    ldx #3
+    ldy #23
+    jsr drawgpio
+    // DrawRelays(3,23)
     // PrintHex(18,23)
     inc zp_pointer_hi
     ldx #$00
@@ -1994,22 +2148,10 @@ draw_current_relays:
     jsr calculate_pattern_block
     ldx #$00
     lda (zp_pointer_lo,x) // Load the value from memory
-    // DrawRelays(7,2)       // Draw current relay at top of screen
-    DrawRelays(3,17)      // Draw current relay at current in track pattern cursor position
-    // PrintHex(18,17)       // Print hex value of current relay in track pattern cursor position
 
-    lda vic_rel_mode
-    cmp #$00
-    bne vic_rel_mode_on
-    ldx #$00
-    lda (zp_pointer_lo,x)
-    eor #$ff              // Relay block is actually inverse of what is shown on screen
-    sta USER_PORT_DATA
-    rts
-vic_rel_mode_on:
-    ldx #$00
-    lda (zp_pointer_lo,x)
-    sta USER_PORT_DATA
+    ldx #$03
+    ldy #$11
+    jsr drawgpio
     rts
 
 ////////////////////////////////////////////////////
