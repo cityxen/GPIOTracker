@@ -8,10 +8,36 @@
 //////////////////////////////////////////////////////////////////////////
 
 // zero page vars
-.const zp_pointer_lo         = $fb
-.const zp_pointer_hi         = $fc
-.const zp_temp               = $fd
-.const zp_temp2              = $fa
+
+.const zp_block1             = $03
+.const zp_block1_lo          = $03
+.const zp_block1_hi          = $04
+
+.const zp_block2             = $05
+.const zp_block2_lo          = $05
+.const zp_block2_hi          = $06
+
+.const zp_block3             = $fb
+.const zp_block3_lo          = $fb
+.const zp_block3_hi          = $fc
+
+.const zp_block4             = $fd
+.const zp_block4_lo          = $fd
+.const zp_block4_hi          = $fe
+
+// $57-$70
+// $92-$96, $A3-$B1, $F7-$FE
+
+.const zp_point_tmp          = $59
+.const zp_point_tmp_lo       = $59
+.const zp_point_tmp_hi       = $5a
+
+.const zp_point_tmp2         = $94
+.const zp_point_tmp2_lo      = $94
+.const zp_point_tmp2_hi      = $95
+
+.const zp_temp               = $a3
+.const zp_temp2              = $a4
 
 // disk vars
 .var filename                = $4b8 // 16 bytes
