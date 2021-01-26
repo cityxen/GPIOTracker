@@ -55,6 +55,9 @@
     BasicUpstart($080d)
 *=$080d "Program"
 
+    jsr new_data
+
+/*
     // Initialize the Dorktronic GPIO device
     // jsr I2C_INIT
     lda #$00 // IODIRA
@@ -76,7 +79,7 @@
     ldx #$42 // set port c-d
     ldy #$00 // output
     jsr I2C_I2C_OUT    
-
+*/
     lda VIC_MEM_POINTERS // point to the new characters
     ora #$0c
     sta VIC_MEM_POINTERS
@@ -373,6 +376,8 @@ mainloop:
 !check_key:
     cmp #KEY_SPACE
     bne !check_key+
+    jsr toggle_gpio_pin_under_cursor
+    jsr refresh_pattern
     jmp mainloop
 //////////////////////////////////////////////////
 // Cursor LEFT (Move sprite cursor left)
@@ -613,11 +618,14 @@ pb_pc_2:
 pb_pc_3:
 pb_pc_end:
     // do speed stuff
+    /*
     jsr KERNAL_RDTIM
-    and #$01
-    cmp #$01
-    beq pb_speed_chk
-    rts
+    and #$1F
+    clc
+    ror
+    bcs pb_speed_chk
+    rts*/
+    
 pb_speed_chk:
     inc playback_speed_counter
     clc
@@ -625,8 +633,9 @@ pb_speed_chk:
     rol
     rol
     cmp playback_speed_counter
-    bcc pb_speed_chk2
+    bcc pb_speed_chk3
     rts
+    /*
 pb_speed_chk2:
     lda #$00
     sta playback_speed_counter
@@ -635,9 +644,11 @@ pb_speed_chk2:
     cmp #$04
     beq pb_speed_chk3
     rts
+    */
 pb_speed_chk3:
     lda #$00
-    sta playback_speed_counter2
+    sta playback_speed_counter
+    sta playback_speed_counter2    
     clc
     lda playback_pos_pattern_c
     cmp #$ff
@@ -1897,6 +1908,87 @@ sds_eof:
     rts
 sds_devnp:
     //  ... device not present handling ...
+    rts
+
+toggle_gpio_pin_under_cursor:
+    jsr calculate_pattern_block
+
+    lda sprite_cursor
+    clc
+    cmp #$08
+    bcs !tgpuc+
+    // in first block
+    ldx sprite_cursor
+    inx
+    lda #%00000000
+    sec
+!tgpuc_i:
+    ror
+    dex
+    bne !tgpuc_i-
+    ldx #$00
+    eor (zp_block1,x)
+    sta (zp_block1,x)
+    rts
+
+!tgpuc:
+    cmp #$10
+    bcs !tgpuc+
+    // in second block
+    lda sprite_cursor
+    sec
+    sbc #$08
+    tax
+    inx
+    lda #%00000000
+    sec
+!tgpuc_i:
+    ror
+    dex
+    bne !tgpuc_i-
+    ldx #$00
+    eor (zp_block2,x)
+    sta (zp_block2,x)
+    rts
+
+!tgpuc:
+    cmp #$18
+    bcs !tgpuc+
+    // in third block
+    lda sprite_cursor
+    sec
+    sbc #$10
+    tax
+    inx
+    lda #%00000000
+    sec
+!tgpuc_i:
+    ror
+    dex
+    bne !tgpuc_i-
+    ldx #$00
+    eor (zp_block3,x)
+    sta (zp_block3,x)
+    rts
+
+!tgpuc:
+    // in fourth block
+    lda sprite_cursor
+    sec
+    sbc #$18
+    tax
+    inx
+    lda #%00000000
+    sec
+!tgpuc_i:
+    ror
+    dex
+    bne !tgpuc_i-
+    ldx #$00
+    eor (zp_block4,x)
+    sta (zp_block4,x)
+
+tgpuc_out:
     rts
 
 ////////////////////////////////////////////////////
