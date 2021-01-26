@@ -3,7 +3,7 @@
 # GPIO Tracker - Commodore 64 Version
 
 
-![screen3](https://raw.githubusercontent.com/cityxen/GPIOTracker/main/images/screen3.jpg)
+![screen3](https://github.com/cityxen/GPIOTracker/blob/master/images/screen3.jpg)
 
 
 Version: 1.0 by Deadline with code from Dorktronic: https://github.com/dorktronic
