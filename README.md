@@ -2,7 +2,11 @@
 
 # GPIO Tracker - Commodore 64 Version
 
-Version: 1.0 by Deadline
+
+![screen3](https://raw.githubusercontent.com/cityxen/GPIOTracker/main/images/screen3.jpg)
+
+
+Version: 1.0 by Deadline with code from Dorktronic: https://github.com/dorktronic
 
 This program will set the user port output for 32 pin GPIO board from Dorktronic.
 
@@ -59,7 +63,7 @@ Cursor Right - Move GPIO Cursor right
 
 Cursor Left - Move GPIO Cursor left
 
-1-8 - Toggle relay within current GPIO Cursor
+SPACE - Toggle relay within current GPIO Cursor
 
 MINUS - Turn off all relays within current GPIO Cursor
 
@@ -99,4 +103,4 @@ J - Toggle Joystick Control Mode (JCM Modes: OFF,PLAY)
 
 N - Clear memory
 
-SPACE - Play/Pause
+P - Play/Pause
