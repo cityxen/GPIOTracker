@@ -55,6 +55,28 @@
     BasicUpstart($080d)
 *=$080d "Program"
 
+    // Initialize the Dorktronic GPIO device
+    // jsr I2C_INIT
+    lda #$00 // IODIRA
+    ldx #$40 // set port a-b
+    ldy #$00 // output
+    jsr I2C_I2C_OUT
+
+    lda #$01 // IODIRB
+    ldx #$40 // set port a-b
+    ldy #$00 // output
+    jsr I2C_I2C_OUT
+
+    lda #$00 // IODIRA
+    ldx #$42 // set port c-d
+    ldy #$00 // output
+    jsr I2C_I2C_OUT
+
+    lda #$01 // IODIRB
+    ldx #$42 // set port c-d
+    ldy #$00 // output
+    jsr I2C_I2C_OUT    
+
     lda VIC_MEM_POINTERS // point to the new characters
     ora #$0c
     sta VIC_MEM_POINTERS
@@ -699,9 +721,6 @@ init_fn_loop:
     cpy #$0a
     bne !fill_data-
 
-    // Initialize the Dorktronic GPIO device
-    // jsr I2C_INIT
-
     rts
 
 initial_filename:
@@ -1005,6 +1024,13 @@ command_future:
 dorktronic_set_gpio:
     // TODO: Set GPIO
     // jsr I2C_I2C_OUT
+
+    //       A = I2C REGISTER NUMBER
+    //       X = I2C DEVICE NUMBER.  FOR C=GPIO USE $40 FOR PORTA-B, $42 FOR PORTC-D
+    //       Y = DATA BYTE TO SEND
+
+
+
 
 rts
 

@@ -1,7 +1,7 @@
 ftp -inv 192.168.1.5 <<EOF
 user guest guest
 cd Usb1/github/GPIOTracker/prg_files
-delete g9k-test.d64
+delete gpiotracker.d64
 lcd prg_files
 binary
 put gpiotracker.d64
