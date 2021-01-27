@@ -26,70 +26,70 @@ This program will set the user port output for 32 pin GPIO board from Dorktronic
 
 ### Storage
 
-D - change drive number (toggles between drives 08,09,10,11)
+        D - change drive number (toggles between drives 08,09,10,11)
 
-F - change filename (allows you to change the working filename)
+        F - change filename (allows you to change the working filename)
 
-$ - shows directory of current disk
+        $ - shows directory of current disk
 
-S - saves data to filename on drive
+        S - saves data to filename on drive
 
-L - loads data from filename from drive
+        L - loads data from filename from drive
 
-E - Erase File
+        E - Erase File
 
-N - Clear memory
+        N - Clear memory
 
 ### Playback
 
-P - Play/Pause
+        P - Play/Pause
 
 ### Editing:
 
-F1 - Moves Track Block Cursor UP
+        F1 - Moves Track Block Cursor UP
 
-F3 - Moves Track Block Cursor DOWN
+        F3 - Moves Track Block Cursor DOWN
 
-F2 - Track Block Length DOWN
+        F2 - Track Block Length DOWN
 
-F4 - Track Block Length UP
+        F4 - Track Block Length UP
 
-; - Changes Pattern for current track UP
+        ; - Changes Pattern for current track UP
 
-: - Changes Pattern for current track DOWN
+        : - Changes Pattern for current track DOWN
 
-Cursor Down - Move Pattern Cursor Down
+        Cursor Down - Move Pattern Cursor Down
 
-Cursor Up - Move Pattern Cursor Up
+        Cursor Up - Move Pattern Cursor Up
 
-Cursor Right - Move GPIO Cursor right
+        Cursor Right - Move GPIO Cursor right
 
-Cursor Left - Move GPIO Cursor left
+        Cursor Left - Move GPIO Cursor left
 
-SPACE - Toggle pin within current GPIO Cursor
+        SPACE - Toggle pin within current GPIO Cursor
 
-MINUS - Turn off all pins on current line
+        MINUS - Turn off all pins on current line
 
-PLUS - Turn on all oins on current line
+        PLUS - Turn on all oins on current line
 
-HOME - Move Pattern Cursor to TOP
+        HOME - Move Pattern Cursor to TOP
 
-CLR - Move Pattern Cursor to BOTTOM
+        CLR - Move Pattern Cursor to BOTTOM
 
-F5 - Pattern Cursor Page UP
+        F5 - Pattern Cursor Page UP
 
-F7 - Pattern Cursor Page DOWN
+        F7 - Pattern Cursor Page DOWN
 
-C - Change Command
+        C - Change Command
 
-        Command   Value
-        SPEED   = 00 - 3F (Change the speed of playback.. Lower = Faster)
-        STOP    = IGNORED (Stops playback)
-        FUTURE  = IGNORED (Future command slot available with values from 00-1f)
+                Command   Value
+                SPEED   = 00 - 3F (Change the speed of playback.. Lower = Faster)
+                STOP    = IGNORED (Stops playback)
+                FUTURE  = IGNORED (Future command slot available with values from 00-1f)
 
-\* - Change Command Data Value Up (Command Data range is from 00-3F)
+        \* - Change Command Data Value Up (Command Data range is from 00-3F)
 
-= - Change Command Data Value Down
+        = - Change Command Data Value Down
 
 ### Additional Features
 
