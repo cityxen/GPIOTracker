@@ -14,14 +14,13 @@ This program will set the user port output for 32 pin GPIO board from Dorktronic
 * Stop playback with programmable command
 
 ## Notes:
+* GPIOTracker Data is located from $4000 - $9fff (Note this could be reworked to use RAM Expansion devices in the future, or some other enhanced method than it is using now)
 * Each block of GPIOTracker data is 1280 bytes
-
 
 ## Build Notes:
 * Edit Build.bat to set it for your environment
-* DASM compiler
-* the Macros and Constants from https://github.com/cityxen/Commodore64_Programming repo
-* GPIOTracker Data is located from $4000 - $9fff (Note this could be reworked to use RAM Expansion devices in the future, or some other enhanced method than it is using now)
+* Requires DASM and KickAssembler to build
+* Uses Macros and Constants from https://github.com/cityxen/Commodore64_Programming repo
 
 ## Commands:
 
@@ -97,7 +96,7 @@ C - Change Command
 J - Toggle Joystick Control Mode (JCM Modes: OFF)
 
         OFF  = Joystick doesn't affect anything
-        (JCM is currently not implemented in GPIOTracker)
+        (JCM is currently not implemented in GPIOTracker, and may be removed entirely)
         Future modes:
         *SS   = Fire toggles playback (start / stop)
         *PLAY = While fire button is pressed, track will play
