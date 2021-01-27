@@ -2,15 +2,16 @@
 
 # GPIO Tracker - Commodore 64 Version
 
-
 ![screen4](https://github.com/cityxen/GPIOTracker/blob/master/images/screen4.jpg)
-
 
 Version: 1.0 by Deadline with code from Dorktronic: https://github.com/dorktronic
 
 This program will set the user port output for 32 pin GPIO board from Dorktronic.
 
-- (THIS IS SUBJECT TO CHANGE) Up to 256 Tracks, Up to 16 Patterns of 256 different states, Speed up or Slow down during playback, Stop playback with the programmable commands, control additional daisy chained machines running GPIO/Relay Tracker using joystick control mode (JCM). Will work with Relay Tracker. No limit to the number of daisy chained GPIO/Relay Trackers.
+## Features: (THIS IS SUBJECT TO CHANGE)
+* Up to 256 Tracks, Up to 16 Patterns of 256 different states
+* Speed up or Slow down during playback with programmable command
+* Stop playback with programmable command
 
 ## Notes:
 If you're going to attempt to compile this, you'll need:
@@ -37,7 +38,13 @@ L - loads data from filename from drive
 
 E - Erase File
 
-### Track
+N - Clear memory
+
+### Playback
+
+P - Play/Pause
+
+### Editing:
 
 F1 - Moves Track Block Cursor UP
 
@@ -47,8 +54,6 @@ F2 - Track Block Length DOWN
 
 F4 - Track Block Length UP
 
-### Pattern
-
 ; - Changes Pattern for current track UP
 
 : - Changes Pattern for current track DOWN
@@ -57,17 +62,15 @@ Cursor Down - Move Pattern Cursor Down
 
 Cursor Up - Move Pattern Cursor Up
 
-CTRL - Advance inner track cursor
-
 Cursor Right - Move GPIO Cursor right
 
 Cursor Left - Move GPIO Cursor left
 
-SPACE - Toggle relay within current GPIO Cursor
+SPACE - Toggle pin within current GPIO Cursor
 
-MINUS - Turn off all relays within current GPIO Cursor
+MINUS - Turn off all pins on current line
 
-PLUS - Turn on all relays within current GPIO Cursor
+PLUS - Turn on all oins on current line
 
 HOME - Move Pattern Cursor to TOP
 
@@ -80,7 +83,7 @@ F7 - Pattern Cursor Page DOWN
 C - Change Command
 
         Command   Value
-        SPEED   = 00 - 1f (Change the speed of playback.. Lower = Faster)
+        SPEED   = 00 - 3F (Change the speed of playback.. Lower = Faster)
         STOP    = IGNORED (Stops playback)
         FUTURE  = IGNORED (Future command slot available with values from 00-1f)
 
@@ -90,17 +93,14 @@ C - Change Command
 
 ### Additional Features
 
-J - Toggle Joystick Control Mode (JCM Modes: OFF,PLAY)
+J - Toggle Joystick Control Mode (JCM Modes: OFF)
 
         OFF  = Joystick doesn't affect anything
-        PLAY = While fire button is pressed, track will play
+        (JCM is currently not implemented in GPIOTracker)
         Future modes:
         *SS   = Fire toggles playback (start / stop)
+        *PLAY = While fire button is pressed, track will play
         *FREE = Up,Down,Left,Right toggle GPIO 1-4 Fire+Up,Down,Left or Right, toggle GPIO 2-8
         *TRAK = Up Move Pattern Cursor Up, Down Move Pattern Cursor Down
         *EDIT = Move Joystick Cursor within Pattern area to move, Fire toggle GPIO bit
         (* SS,FREE,TRAK,EDIT JCM modes do not work yet)
-
-N - Clear memory
-
-P - Play/Pause
