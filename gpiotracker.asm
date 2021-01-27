@@ -5,7 +5,7 @@
 // Version: 1
 // Author: Deadline
 //
-// 2020 CityXen
+// 2020-21 CityXen
 //
 // As seen on our youtube channel:
 // https://www.youtube.com/CityXen
@@ -55,7 +55,7 @@
     BasicUpstart($080d)
 *=$080d "Program"
 
-    jsr new_data
+//     jsr new_data
 
 /*
     // Initialize the Dorktronic GPIO device
@@ -91,13 +91,15 @@
 //////////////////////////////////////////////////////////
 // START OF MAIN LOOP
 mainloop:
+    lda JOYSTICK_PORT_2
+    jsr sub_read_joystick_2_fire // read joystick data
     jsr joystick_control_mode_check // Joystick Control Mode
     jsr playback // Playback if it is on
     jsr draw_playback_status // Draw Playback Status
     jsr sprite_cursor_blink
 
 //////////////////////////////////////////////////////////
-// P (PLAY/PAUSE)
+// Check Keyboard Input
     jsr KERNAL_GETIN // CHECK KEYBOARD FOR KEY HITS
 //////////////////////////////////////////////////////////
 // P (PLAY/PAUSE)
@@ -163,7 +165,7 @@ mainloop:
     bne !check_key+
     clc
     lda joystick_control_mode
-    cmp #max_joystick_control_modes
+    cmp #jcm_max_modes
     beq !check_key_inner+
     inc joystick_control_mode
     jmp !check_key_inner++
@@ -452,8 +454,6 @@ mainloop:
     sta pattern_cursor
     jsr calculate_pattern_block
     jsr refresh_pattern
-
-
 //////////////////////////////////////////////////
 // END Check Keys
 !check_key:
@@ -466,43 +466,63 @@ mainloop:
 joystick_control_mode_check:
     clc
     lda joystick_control_mode
-    cmp #$00
-    bne jcm_mode_on
-    rts
-jcm_mode_on:
+    beq jcm_out
     cmp #$01
-    bne jcm_not_play
-    lda JOYSTICK_PORT_2
-    jsr sub_read_joystick_2_fire
-	cmp #$01
-    bne jcm_play_off
+    bne !jcm_mode_check+
+
+jcm_1: // MODE 1: PLAY (Playback occurs while fire button is pressed)
+    lda jcm_fire_pressed
+	beq jcm_1_off
     lda #$01
     sta playback_playing
     rts
-jcm_play_off:
+jcm_1_off:
     lda #$00
     sta playback_playing
+    jmp jcm_out
+
+!jcm_mode_check:
+    cmp #$02
+    bne jcm_out
+
+jcm_2: // MODE 2: SS (Fire button toggles playback)
+    lda jcm_fire_pressed
+    bne jcm_out
+    lda jcm_fire_released
+    bne jcm_out
+    lda #$00
+    sta jcm_fire_released
+    inc playback_playing
+    lda playback_playing
+    and #$01
+    sta playback_playing
+    
+jcm_out:
     rts
 
-jcm_not_play:
-    rts
-
+////////////////////////////////////////////////////
+// Joystick read data
 sub_read_joystick_2_fire:
 	lda JOYSTICK_PORT_2
-	lsr
-	lsr
-	lsr
-	lsr
-	lsr
+	lsr; lsr; lsr; lsr; lsr
 	bcc read_joystick_2_fire
-	lda #$00
+    lda jcm_fire_pressed
+    bne !rj2f+
+    lda #$01
+    sta jcm_fire_released
+!rj2f:
+    lda #$00
+    sta jcm_fire_pressed
 	rts
 read_joystick_2_fire:
-	lda #$01
+    lda #$00
+    sta jcm_fire_released
+    lda #$01
+    sta jcm_fire_pressed
 	rts
 
 ////////////////////////////////////////////////////
-// Change Command UP
+// Change Command value UP
 change_command_data_up:
     jsr calculate_pattern_block
     ldx #$00
@@ -527,7 +547,7 @@ change_command_data_up:
     rts
 
 ////////////////////////////////////////////////////
-// Change Command DOWN
+// Change Command value DOWN
 change_command_data_down:
     jsr calculate_pattern_block
     ldx #$00
@@ -584,10 +604,10 @@ cc_not_speed:
 playback:
     clc
     lda playback_playing
-    cmp #$01
-    beq not_playing
+    and #$01
+    bne playing
     rts
-not_playing:
+playing:
     // process command
     jsr calculate_pattern_block
     ldx #$00
@@ -595,12 +615,7 @@ not_playing:
     tax
     and #$c0
     clc
-    ror
-    ror
-    ror
-    ror
-    ror
-    ror
+    ror; ror; ror; ror; ror; ror
     cmp #$01
     bne pb_pc_2
     // speed
@@ -617,14 +632,6 @@ pb_pc_2:
     jmp pb_pc_end
 pb_pc_3:
 pb_pc_end:
-    // do speed stuff
-    /*
-    jsr KERNAL_RDTIM
-    and #$1F
-    clc
-    ror
-    bcs pb_speed_chk
-    rts*/
     
 pb_speed_chk:
     inc playback_speed_counter
@@ -635,16 +642,7 @@ pb_speed_chk:
     cmp playback_speed_counter
     bcc pb_speed_chk3
     rts
-    /*
-pb_speed_chk2:
-    lda #$00
-    sta playback_speed_counter
-    inc playback_speed_counter2
-    lda playback_speed_counter2
-    cmp #$04
-    beq pb_speed_chk3
-    rts
-    */
+
 pb_speed_chk3:
     lda #$00
     sta playback_speed_counter
@@ -709,7 +707,6 @@ init_fn_loop:
     sta playback_speed
     lda #$00
     sta playback_speed_counter
-
     ldx #$00
     ldy #$00
 !fill_data:
@@ -739,7 +736,7 @@ initial_filename:
 .byte 0,0,0,0
 
 initial_gpio_settings:
-.byte %00000000,%00000000,%00000000,%00000000,%01111111
+.byte %00000000,%00000000,%00000000,%00000000,%01000111
 .byte %00000000,%00000000,%00000000,%00000000,%00000000
 .byte %00000000,%00000000,%00000000,%00000000,%00000000
 .byte %00111100,%01100110,%01000100,%00011000,%00000000
@@ -943,7 +940,8 @@ drawgpio_block:
 refresh_jcm:
 draw_jcm:
     // 0 = OFF: off
-    // 1 = PLAY MODE: Joystick button plays
+    // 1 = PLAY MODE: Playback occurs while fire button pressed
+    // 2 = SS MODE: Playback toggled with fire button
     // 2 = FREESTYLE MODE: Joystick directions toggle relays 1-4 directions + button toggle relays 5-8
     // 3 = TRACKER MODE: Joystick UP and DOWN control play of tracker
     // 4 = EDIT
@@ -951,8 +949,8 @@ draw_jcm:
     lda joystick_control_mode
     cmp #$00
     beq jcm_is_zero
-    clc
     lda joystick_control_mode
+    clc
     rol
     rol
 jcm_is_zero:
@@ -973,7 +971,7 @@ jcm_is_zero:
 jcm_modes_text:
 .text "off "
 .text "play"
-.text "free"
+.text "ss  "
 .text "trak"
 .text "edit"
 

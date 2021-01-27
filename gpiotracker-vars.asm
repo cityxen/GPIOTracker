@@ -4,11 +4,10 @@
 // Version: 1
 // Author: Deadline
 //
-// 2020 CityXen
+// 2020-21 CityXen
 //////////////////////////////////////////////////////////////////////////
 
 // zero page vars
-
 .const zp_block1             = $03
 .const zp_block1_lo          = $03
 .const zp_block1_hi          = $04
@@ -83,32 +82,17 @@
 .const pattern_min           = $00
 .const pattern_max           = $11
 
-/*
-// command/data stuff
-.const command_block_start     = $4600
-.const command_block_start_lo  = $00
-.const command_block_start_hi  = $46
-*/
-// command = xx------
-// data    = --xxxxxx
-// current commands:
-// ----- (Empty)
-// SPEED (00-1f)
-// STOP  (End playback)
-// FLASH (00-1f)
-
 // Joystick Control Mode
 .var joystick_control_mode   = $2c0d
 .var jcm_edit_cursor_x       = $2c0e
 .var jcm_edit_cursor_y       = $2c0f
-
-.const max_joystick_control_modes = $01
+.var jcm_fire_pressed        = $2c10
+.var jcm_fire_released       = $2c11
+.const jcm_max_modes = $02
     // Joystick control modes: (ALL JOYSTICK FUNCS ARE ON PORT 2)
     // 0 = OFF: off
-    // 1 = PLAY: Joystick button plays
-    // TODO:
+    // 1 = PLAY: Playback occurs while joystick fire button pressed (momentary)
     // 2 = SS: Fire toggles playback (start / stop)
-    // 3 = FREE: Joystick directions toggle relays 1-4 directions + button toggle relays 5-8
-    // 4 = TRAK: Joystick UP and DOWN control play of tracker
-    // 5 = EDIT: Directions move cursor on pattern editor, fire toggles relay bit
+    // TODO:    
+    // 3 = EDIT: Directions move cursor on pattern editor, fire toggles relay bit
     

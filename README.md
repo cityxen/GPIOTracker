@@ -93,14 +93,12 @@ This program will set the user port output for 32 pin GPIO board from Dorktronic
 
 ### Additional Features
 
-        J - Toggle Joystick Control Mode (JCM Modes: OFF)
+        J - Toggle Joystick Control Mode
 
+                JCM Modes:
+                
                 OFF  = Joystick doesn't affect anything
-                (JCM is currently not implemented in GPIOTracker, and may be removed entirely)
-                Future modes:
-                *SS   = Fire toggles playback (start / stop)
-                *PLAY = While fire button is pressed, track will play
-                *FREE = Up,Down,Left,Right toggle GPIO 1-4 Fire+Up,Down,Left or Right, toggle GPIO 2-8
-                *TRAK = Up Move Pattern Cursor Up, Down Move Pattern Cursor Down
-                *EDIT = Move Joystick Cursor within Pattern area to move, Fire toggle GPIO bit
-                (* SS,FREE,TRAK,EDIT JCM modes do not work yet)
+                PLAY = While fire button is pressed, track will play
+                SS   = Fire release toggles playback (start / stop)
+                Future modes:                
+                *EDIT = Move Joystick Cursor within Pattern area to move, Fire toggle GPIO pin
