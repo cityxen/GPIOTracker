@@ -87,7 +87,7 @@ This program will set the user port output for 32 pin GPIO board from Dorktronic
                 STOP    = IGNORED (Stops playback)
                 FUTURE  = IGNORED (Future command slot available with values from 00-1f)
 
-        \* - Change Command Data Value Up (Command Data range is from 00-3F)
+        * - Change Command Data Value Up (Command Data range is from 00-3F)
 
         = - Change Command Data Value Down
 
