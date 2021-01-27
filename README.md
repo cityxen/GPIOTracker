@@ -8,19 +8,20 @@ Version: 1.0 by Deadline with code from Dorktronic: https://github.com/dorktroni
 
 This program will set the user port output for 32 pin GPIO board from Dorktronic.
 
-## Features: (THIS IS SUBJECT TO CHANGE)
+## Features:
 * Up to 256 Tracks, Up to 16 Patterns of 256 different states
 * Speed up or Slow down during playback with programmable command
 * Stop playback with programmable command
 
 ## Notes:
-If you're going to attempt to compile this, you'll need:
+* Each block of GPIOTracker data is 1280 bytes
+
+
+## Build Notes:
 * Edit Build.bat to set it for your environment
 * DASM compiler
 * the Macros and Constants from https://github.com/cityxen/Commodore64_Programming repo
 * GPIOTracker Data is located from $4000 - $9fff (Note this could be reworked to use RAM Expansion devices in the future, or some other enhanced method than it is using now)
-* Each block of GPIOTracker data is 1280 bytes)
-
 
 ## Commands:
 
