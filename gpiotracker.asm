@@ -29,9 +29,9 @@
         [name="I2C.ML", type="prg", segments="Dorktronic"]
 }
 
-#import "../../Commodore64_Programming/include/Constants.asm"
-#import "../../Commodore64_Programming/include/Macros.asm"
-#import "../../Commodore64_Programming/include/DrawPetMateScreen.asm"
+#import "Constants.asm"
+#import "Macros.asm"
+#import "DrawPetMateScreen.asm"
 #import "gpiotracker-vars.asm"
 #import "i2c_symbols.asm"
 
@@ -2214,4 +2214,4 @@ sprite_init:
 // END OF PROGRAM
 ///////////////////////////////////////////////////
 
-#import "../../Commodore64_Programming/include/PrintSubRoutines.asm"
+#import "PrintSubRoutines.asm"
