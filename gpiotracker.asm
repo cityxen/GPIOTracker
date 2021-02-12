@@ -41,7 +41,7 @@
 #import "gpiotracker-screen.asm"
 
 *=$2000 "Cursor Sprite"
-#import "sprite-cursor.asm"
+#import "gpiotracker-sprite-cursor.asm"
 
 .segment Dorktronic [outPrg="i2c.ml.prg"]
 *=$2d00 "dorktronic i2c"
