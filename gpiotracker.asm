@@ -57,9 +57,7 @@
 
 //     jsr new_data
 
-/*
     // Initialize the Dorktronic GPIO device
-    // jsr I2C_INIT
     lda #$00 // IODIRA
     ldx #$40 // set port a-b
     ldy #$00 // output
@@ -79,7 +77,7 @@
     ldx #$42 // set port c-d
     ldy #$00 // output
     jsr I2C_I2C_OUT    
-*/
+
     lda VIC_MEM_POINTERS // point to the new characters
     ora #$0c
     sta VIC_MEM_POINTERS
@@ -1028,20 +1026,49 @@ command_stop:
 command_future:
 .text "f"
 
+
 ////////////////////////////////////////////////////
 // Set the GPIO pins according to pattern cursor
 dorktronic_set_gpio:
-    // TODO: Set GPIO
-    // jsr I2C_I2C_OUT
+    // set port A bits
+    ldx #0
+    lda ($03),x
+    tay
+    lda #$12
+    ldx #$40
+    jsr I2C_I2C_OUT
+    bcs dsg_error
+    // set port B bits
+    ldx #0
+    lda ($92),x
+    tay
+    lda #$13
+    ldx #$40
+    jsr I2C_I2C_OUT
+    bcs dsg_error
+    // set port C bits
+    ldx #0
+    lda ($a6),x
+    tay
+    lda #$12
+    ldx #$42
+    jsr I2C_I2C_OUT
+    bcs dsg_error
+    // set port D bits
+    ldx #0
+    lda ($a8),x
+    tay
+    lda #$13
+    ldx #$42
+    jsr I2C_I2C_OUT
+    bcs dsg_error
+    
+    rts
 
-    //       A = I2C REGISTER NUMBER
-    //       X = I2C DEVICE NUMBER.  FOR C=GPIO USE $40 FOR PORTA-B, $42 FOR PORTC-D
-    //       Y = DATA BYTE TO SEND
+dsg_error:
+    // An error occurred while writing to the device, do something about it?
+    rts
 
-
-
-
-rts
 
 ////////////////////////////////////////////////////
 // Refresh Pattern
