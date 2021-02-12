@@ -205,7 +205,10 @@ GETACK  SUBROUTINE      ; WAIT FOR AN ACKNOWLEDGEMENT SEQUENCE
 .1      DEX             ; X/Y IS 16 BIT WATCHDOG HERE
         BEQ .2          ; IF WE DEX ALL THE WAY TO ZERO JUMP DOWN AND DEY
         BIT IOPORT      ; READ FROM THE DEVICE INTO BIT 7
-        BMI .1          ; DEVICE HAS ACKNOWLEDGED WHEN BIT GOES LOW
+
+; The following line is commented out to disable device ACK, allowing testing in VICE
+;        BMI .1          ; DEVICE HAS ACKNOWLEDGED WHEN BIT GOES LOW
+
         JSR SCK0
         CLC             ; RETURN WITH CARRY CLEAR, MEANS SUCCESS
         RTS
