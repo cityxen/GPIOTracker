@@ -207,7 +207,7 @@ GETACK  SUBROUTINE      ; WAIT FOR AN ACKNOWLEDGEMENT SEQUENCE
         BIT IOPORT      ; READ FROM THE DEVICE INTO BIT 7
 
 ; The following line is commented out to disable device ACK, allowing testing in VICE
-;        BMI .1          ; DEVICE HAS ACKNOWLEDGED WHEN BIT GOES LOW
+        BMI .1          ; DEVICE HAS ACKNOWLEDGED WHEN BIT GOES LOW
 
         JSR SCK0
         CLC             ; RETURN WITH CARRY CLEAR, MEANS SUCCESS
