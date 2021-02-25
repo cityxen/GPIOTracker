@@ -1032,7 +1032,7 @@ command_future:
 dorktronic_set_gpio:
     // set port A bits
     ldx #0
-    lda ($03),x
+    lda (zp_block1,x)
     tay
     lda #$12
     ldx #$40
@@ -1040,7 +1040,7 @@ dorktronic_set_gpio:
     bcs dsg_error
     // set port B bits
     ldx #0
-    lda ($92),x
+    lda (zp_block2,x)
     tay
     lda #$13
     ldx #$40
@@ -1048,7 +1048,7 @@ dorktronic_set_gpio:
     bcs dsg_error
     // set port C bits
     ldx #0
-    lda ($a6),x
+    lda (zp_block3,x)
     tay
     lda #$12
     ldx #$42
@@ -1056,7 +1056,7 @@ dorktronic_set_gpio:
     bcs dsg_error
     // set port D bits
     ldx #0
-    lda ($a8),x
+    lda (zp_block4,x)
     tay
     lda #$13
     ldx #$42
@@ -1073,9 +1073,10 @@ dsg_error:
 ////////////////////////////////////////////////////
 // Refresh Pattern
 refresh_pattern:
+    jsr calculate_pattern_block
     jsr dorktronic_set_gpio
     jsr calculate_pattern_block
-rp_v1:    
+rp_v1:
     lda pattern_cursor
     clv
     sec
