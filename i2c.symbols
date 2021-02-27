@@ -1,7 +1,7 @@
 --- Symbol List (sorted by symbol)
 1.ABORT                  2d17              (R )
 11.1                     2deb              (R )
-11.2                     2df8              (R )
+11.2                     2df6              (R )
 2.ABORT                  2d34              (R )
 3.ABORT                  2d55              (R )
 5.1                      2d7e              (R )
@@ -11,7 +11,7 @@
 9.1                      2dc1              (R )
 _I2C_IN                  2d19              (R )
 ADDR                     00fd              (R )
-CODEEND                  2e00              (R )
+CODEEND                  2dfe              (R )
 CODESTART                2d00              (R )
 COMP                     433634      str     (R ) "C64"
 DATA                     00fe              (R )
