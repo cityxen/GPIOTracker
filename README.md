@@ -6,6 +6,8 @@
 
 Version: 1.0 by Deadline with code from Dorktronic: https://github.com/dorktronic
 
+Demonstration here: https://youtu.be/Opf6GL9stzQ
+
 This program will set the user port output for 32 pin GPIO board from Dorktronic.
 
 ## Features:
