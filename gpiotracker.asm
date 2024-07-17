@@ -877,7 +877,7 @@ ds_fn_2:
     rts
 
 ////////////////////////////////////////////////////
-// Draw Relays Macro
+// Draw GPIO routine
 drawgpio:
     stx zp_temp
     sty zp_temp2
