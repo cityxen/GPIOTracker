@@ -1,3 +1,4 @@
 *.scratch
 *.cfg
-
+.claude
+Claude.md

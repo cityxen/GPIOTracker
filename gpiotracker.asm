@@ -23,6 +23,7 @@
 //////////////////////////////////////////////////////////////////////////
 
 .segment Code []
+*=$2040
 .file [name="gpiotracker.prg",segments="Code,Main,Dorktronic"]
 .disk [filename="gpiotracker.d64", name="GPIOTRACKER", id="CXN20" ]  {
         [name="GPIOTRACKER", type="prg",  segments="Code,Dorktronic,Main"],
@@ -57,11 +58,18 @@
 
 //     jsr new_data
 
-    // Initialize the Dorktronic GPIO device
+    // Initialize the Dorktronic GPIO device.
+    // The first write doubles as a presence check: I2C_I2C_OUT returns
+    // carry set when no device acknowledges. If absent we record that and
+    // skip the remaining writes (and all later ones) so the I2C ACK
+    // watchdog never stalls the program / input.
     lda #$00 // IODIRA
     ldx #$40 // set port a-b
     ldy #$00 // output
     jsr I2C_I2C_OUT
+    bcs i2c_no_device // no ACK -> device absent
+    lda #$01
+    sta device_present
 
     lda #$01 // IODIRB
     ldx #$40 // set port a-b
@@ -76,7 +84,12 @@
     lda #$01 // IODIRB
     ldx #$42 // set port c-d
     ldy #$00 // output
-    jsr I2C_I2C_OUT    
+    jsr I2C_I2C_OUT
+    jmp i2c_init_done
+i2c_no_device:
+    lda #$00
+    sta device_present
+i2c_init_done:
 
     lda VIC_MEM_POINTERS // point to the new characters
     ora #$0c
@@ -526,7 +539,7 @@ change_command_data_up:
     ldx #$00
     lda (zp_block_cmd,x)
     and #$c0
-    sta zp_temp
+    sta zp_temp3        // command-type bits (zp_temp2 aliases zp_temp/$57)
     lda (zp_block_cmd,x)
     clc
     and #$3f
@@ -536,11 +549,11 @@ change_command_data_up:
     clc
     cmp #$40
     bcs !ccdu_j+
-    ora zp_temp
+    ora zp_temp3
     sta (zp_block_cmd,x)
     rts
 !ccdu_j:
-    lda zp_temp
+    lda zp_temp3
     sta (zp_block_cmd,x)
     rts
 
@@ -551,7 +564,7 @@ change_command_data_down:
     ldx #$00
     lda (zp_block_cmd,x)
     and #$c0
-    sta zp_temp
+    sta zp_temp3        // command-type bits (zp_temp2 aliases zp_temp/$57)
     lda (zp_block_cmd,x)
     clc
     and #$3f
@@ -561,11 +574,11 @@ change_command_data_down:
     clc
     cmp #$ff
     bcs !ccdd_j+
-    ora zp_temp
+    ora zp_temp3
     sta (zp_block_cmd,x)
     rts
 !ccdd_j:
-    lda zp_temp
+    lda zp_temp3
     ora #$3F
     sta (zp_block_cmd,x)
     rts
@@ -694,6 +707,7 @@ init_fn_loop:
     sta pattern_cursor
     lda #$00
     sta track_block_length
+    sta track_block         // track position 0 -> pattern 0 (RAM is not zeroed at boot)
     jsr calculate_pattern_block
     lda #$00
     sta joystick_control_mode
@@ -775,12 +789,12 @@ clrloop:
     ldy #$00
     lda zp_block1_hi
     sta BACKGROUND_COLOR
-    jsr print_hex
+    jsr print_hex_poke
     ldx #$00
     ldy #$00
     lda zp_block1_lo
     sta BORDER_COLOR
-    jsr print_hex    
+    jsr print_hex_poke    
     pla
     tax
     lda #$00
@@ -833,19 +847,19 @@ draw_playback_status:
     ldx #24
     ldy #01
     lda playback_pos_track
-    jsr print_hex // draw track pos
+    jsr print_hex_poke // draw track pos
     ldx #26
     ldy #01    
     lda playback_pos_pattern
-    jsr print_hex // draw pattern pos
+    jsr print_hex_poke // draw pattern pos
     ldx #28
     ldy #01
     lda playback_pos_pattern_c
-    jsr print_hex // draw pattern cursor
+    jsr print_hex_poke // draw pattern cursor
     ldx #32
     ldy #01
     lda playback_speed
-    jsr print_hex // draw playback speed    
+    jsr print_hex_poke // draw playback speed    
     rts
 
 playback_text:
@@ -879,27 +893,26 @@ ds_fn_2:
 ////////////////////////////////////////////////////
 // Draw GPIO routine
 drawgpio:
-    stx zp_temp
-    sty zp_temp2
-    jsr calculate_screen_pos // zp_ptr_screen // screen location
-    ldx zp_temp
-    ldy zp_temp2
-    jsr calculate_color_pos // zp_ptr_color // screen location
+    jsr calculate_screen_pos // sets up zp_ptr_screen AND zp_ptr_color
     //////////////////////////////////////////////////
     // BLOCK 1 (First 8 bits)
-    ldx #$00; lda (zp_block1,x) // get first block of gpio data
+    ldx #$00
+    lda (zp_block1,x) // get first block of gpio data
     jsr drawgpio_block
     //////////////////////////////////////////////////
     // BLOCK 2 (Next 8 bits)
-    ldx #$00; lda (zp_block2,x) // get next block of gpio data
+    ldx #$00
+    lda (zp_block2,x) // get next block of gpio data
     jsr drawgpio_block 
     //////////////////////////////////////////////////
     // BLOCK 3 (Next 8 bits)
-    ldx #$00; lda (zp_block3,x) // get next block of gpio data
+    ldx #$00
+    lda (zp_block3,x) // get next block of gpio data
     jsr drawgpio_block
     //////////////////////////////////////////////////
     // BLOCK 4 (Next 8 bits)
-    ldx #$00; lda (zp_block4,x) // get next block of gpio data
+    ldx #$00
+    lda (zp_block4,x) // get next block of gpio data
     jsr drawgpio_block
     rts
 
@@ -1014,7 +1027,7 @@ drawcommand: // x=xpos, y=ypos
     inc zp_ptr_screen_lo
     lda (zp_block_cmd,x)
     and #%00111111
-    jsr print_hex_no_calc
+    jsr print_hex_poke
     rts
 
 command: // none
@@ -1030,6 +1043,8 @@ command_future:
 ////////////////////////////////////////////////////
 // Set the GPIO pins according to pattern cursor
 dorktronic_set_gpio:
+    lda device_present // no device -> skip I2C (avoids ACK watchdog stall)
+    beq dsg_error
     // set port A bits
     ldx #0
     lda (zp_block1,x)
@@ -1076,311 +1091,57 @@ refresh_pattern:
     jsr calculate_pattern_block
     jsr dorktronic_set_gpio
     jsr calculate_pattern_block
-rp_v1:
-    lda pattern_cursor
-    clv
-    sec
-    sbc #$06
-    bcs rp_v1_2
-    ldy #11
-    jsr clear_pattern_line
-    jmp rp_v2
-rp_v1_2:
-    ldx #00
-    ldy #11
-    jsr print_hex
-    lda pattern_cursor
-    clv
-    sec
-    sbc #$06
-    jsr set_pattern_block_zptrs
-    ldx #03
-    ldy #11
-    jsr drawgpio
-    ldx #36
-    ldy #11
-    jsr drawcommand
-    
-rp_v2:
-    lda pattern_cursor
-    clv
-    sec
-    sbc #$05
-    bcs rp_v2_2
-    ldy #12
-    jsr clear_pattern_line
-    jmp rp_v3
-rp_v2_2:
-    ldx #00
-    ldy #12
-    jsr print_hex
-    lda pattern_cursor
-    clv
-    sec
-    sbc #$05
-    jsr set_pattern_block_zptrs
-    ldx #03
-    ldy #12
-    jsr drawgpio
-    ldx #36
-    ldy #12
-    jsr drawcommand
-
-rp_v3:
-    lda pattern_cursor
-    clv
-    sec
-    sbc #$04
-    bcs rp_v3_2
-    ldy #13
-    jsr clear_pattern_line
-    jmp rp_v4
-rp_v3_2:
-    ldx #00
-    ldy #13
-    jsr print_hex
-    lda pattern_cursor
-    clv
-    sec
-    sbc #$04
-    jsr set_pattern_block_zptrs
-    ldx #03
-    ldy #13
-    jsr drawgpio
-    ldx #36
-    ldy #13
-    jsr drawcommand
-
-rp_v4:
-    lda pattern_cursor
-    clv
-    sec
-    sbc #$03
-    bcs rp_v4_2
-    ldy #14
-    jsr clear_pattern_line
-    jmp rp_v5
-rp_v4_2:
-    ldx #00
-    ldy #14
-    jsr print_hex
-    lda pattern_cursor
-    clv
-    sec
-    sbc #$03
-    jsr set_pattern_block_zptrs
-    ldx #03
-    ldy #14
-    jsr drawgpio
-    ldx #36
-    ldy #14
-    jsr drawcommand
-
-rp_v5:
-    lda pattern_cursor
-    clv
-    sec
-    sbc #$02
-    bcs rp_v5_2
-    ldy #15
-    jsr clear_pattern_line
-    jmp rp_v6
-rp_v5_2:
-    ldx #00
-    ldy #15
-    jsr print_hex
-    lda pattern_cursor
-    clv
-    sec
-    sbc #$02
-    jsr set_pattern_block_zptrs
-    ldx #03
-    ldy #15
-    jsr drawgpio
-    ldx #36
-    ldy #15
-    jsr drawcommand
-
-rp_v6:
-    lda pattern_cursor
-    clv
-    sec
-    sbc #$01
-    bcs rp_v6_2
-    ldx #$00
-    ldy #16
-    jsr clear_pattern_line
-    jmp rp_v7
-rp_v6_2:
-    ldx #00
-    ldy #16
-    jsr print_hex
-    lda pattern_cursor
-    clv
-    sec
-    sbc #$01
-    jsr set_pattern_block_zptrs
-    ldx #03
-    ldy #16
-    jsr drawgpio
-    ldx #36
-    ldy #16
-    jsr drawcommand
-
-rp_v7:
-    lda pattern_cursor
-    ldx #00
-    ldy #17
-    jsr print_hex
-    lda pattern_cursor
-    jsr set_pattern_block_zptrs
-    ldx #03
-    ldy #17
-    jsr drawgpio
-    lda pattern_cursor
-    jsr set_pattern_block_zptrs
-    ldx #36
-    ldy #17
-    jsr drawcommand
-rp_v8:
-    lda pattern_cursor
-    clc
-    adc #$01
-    bcc rp_v8_2
-    ldy #18
-    jsr clear_pattern_line
-    jmp rp_v9
-rp_v8_2:
-    ldx #00
-    ldy #18
-    jsr print_hex
-    lda pattern_cursor
-    clc
-    adc #$01
-    jsr set_pattern_block_zptrs
-    ldx #03
-    ldy #18
-    jsr drawgpio
-    ldx #36
-    ldy #18
-    jsr drawcommand
-
-rp_v9:
-    lda pattern_cursor
-    clc
-    adc #$02
-    bcc rp_v9_2
-    ldy #19
-    jsr clear_pattern_line
-    jmp rp_v10
-rp_v9_2:
-    ldx #00
-    ldy #19
-    jsr print_hex
-    lda pattern_cursor
-    clc
-    adc #$02
-    jsr set_pattern_block_zptrs
-    ldx #03
-    ldy #19
-    jsr drawgpio
-    ldx #36
-    ldy #19
-    jsr drawcommand
-
-rp_v10:
-    lda pattern_cursor
-    clc
-    adc #$03
-    bcc rp_v10_2
-    ldy #20
-    jsr clear_pattern_line
-    jmp rp_v11
-rp_v10_2:
-    ldx #00
-    ldy #20
-    jsr print_hex
-    lda pattern_cursor
-    clc
-    adc #$03
-    jsr set_pattern_block_zptrs
-    ldx #03
-    ldy #20
-    jsr drawgpio
-    ldx #36
-    ldy #20
-    jsr drawcommand
-
-rp_v11:
-    lda pattern_cursor
-    clc
-    adc #$04
-    bcc rp_v11_2
-    ldy #21
-    jsr clear_pattern_line
-    jmp rp_v12
-rp_v11_2:
-    ldx #00
-    ldy #21
-    jsr print_hex
-    lda pattern_cursor
-    clc
-    adc #$04
-    jsr set_pattern_block_zptrs
-    ldx #03
-    ldy #21
-    jsr drawgpio
-    ldx #36
-    ldy #21
-    jsr drawcommand
-
-rp_v12:
-    lda pattern_cursor
-    clc
-    adc #$05
-    bcc rp_v12_2
-    ldy #22
-    jsr clear_pattern_line
-    jmp rp_v13
-rp_v12_2:
-    ldx #00
-    ldy #22
-    jsr print_hex
-    lda pattern_cursor
-    clc
-    adc #$05
-    jsr set_pattern_block_zptrs
-    ldx #03
-    ldy #22
-    jsr drawgpio
-    ldx #36
-    ldy #22
-    jsr drawcommand
-
-rp_v13:
-    lda pattern_cursor
-    clc
-    adc #$06
-    bcc rp_v13_2
-    ldy #23
-    jsr clear_pattern_line
-    jmp rp_v14
-rp_v13_2:
-    ldx #00
-    ldy #23
-    jsr print_hex
-    lda pattern_cursor
-    clc
-    adc #$06
-    jsr set_pattern_block_zptrs
-    ldx #03
-    ldy #23
-    jsr drawgpio
-    ldx #36
-    ldy #23
-    jsr drawcommand
-rp_v14:
+    lda #$fa            // first visible row offset from cursor = -6
+    sta rp_offset
+    lda #11             // first screen line of the pattern view
+    sta rp_line
+rp_loop:
+    jsr draw_pattern_row
+    inc rp_offset
+    inc rp_line
+    lda rp_line
+    cmp #24             // stop after the last line (23)
+    bne rp_loop
     rts
+
+////////////////////////////////////////////////////
+// Draw one pattern row.
+//   rp_offset = signed offset from pattern_cursor (-6..+6)
+//   rp_line   = screen line to draw on
+// Draws the position number, gpio bits and command, or
+// clears the line when the position is out of range.
+draw_pattern_row:
+    clc
+    lda pattern_cursor
+    adc rp_offset       // value = pattern_cursor + offset
+    sta rp_value
+    bit rp_offset       // N = sign of offset (preserves carry)
+    bmi dpr_neg
+    bcc dpr_inrange     // offset>=0: in range when no carry out
+    jmp dpr_clear
+dpr_neg:
+    bcs dpr_inrange     // offset<0:  in range when no borrow
+dpr_clear:
+    ldy rp_line
+    jsr clear_pattern_line
+    rts
+dpr_inrange:
+    lda rp_value
+    ldx #00
+    ldy rp_line
+    jsr print_hex_poke
+    lda rp_value
+    jsr set_pattern_block_zptrs
+    ldx #03
+    ldy rp_line
+    jsr drawgpio
+    ldx #36
+    ldy rp_line
+    jsr drawcommand
+    rts
+rp_offset: .byte 0
+rp_line:   .byte 0
+rp_value:  .byte 0
 
 ////////////////////////////////////////////////////
 // Refresh Track Blocks
@@ -1405,13 +1166,13 @@ rtb_loop1:
     txa
     ldx #01
     ldy #03
-    jsr print_hex // print track -1
+    jsr print_hex_poke // print track -1
     ldx track_block_cursor
     dex
     lda track_block,x
     ldx #04
     ldy #03
-    jsr print_hex // print pattern of track -1
+    jsr print_hex_poke // print pattern of track -1
 rtb_skip_top:
 // track 0
     lda #58 // put :
@@ -1419,17 +1180,17 @@ rtb_skip_top:
     lda track_block_cursor
     ldx #01
     ldy #04
-    jsr print_hex // print track
+    jsr print_hex_poke // print track
     ldx track_block_cursor
     lda track_block,x
     sta zp_temp
     ldx #04
     ldy #04
-    jsr print_hex // print pattern in track area
+    jsr print_hex_poke // print pattern in track area
     lda zp_temp
     ldx #16
     ldy #03
-    jsr print_hex // print pattern in pattern area
+    jsr print_hex_poke // print pattern in pattern area
 // track +1
     ldx track_block_cursor
     cpx track_block_length
@@ -1441,13 +1202,13 @@ rtb_skip_top:
     txa
     ldx #01
     ldy #05
-    jsr print_hex // print track +1
+    jsr print_hex_poke // print track +1
     ldx track_block_cursor
     inx
     lda track_block,x
     ldx #04
     ldy #05
-    jsr print_hex // print pattern of track +1
+    jsr print_hex_poke // print pattern of track +1
 rtb_skip_bot:
     clc
     ldx #$00 // reverse the track cursor location
@@ -1864,9 +1625,7 @@ efw_print2:
     lda ef_cmd,x
     jsr KERNAL_CHROUT
     inx
-    stx zp_temp2
-    lda zp_temp
-    cmp zp_temp2
+    cpx zp_temp
     bne efw_print2
     lda #$0d
     jsr KERNAL_CHROUT
@@ -2119,47 +1878,47 @@ cpb_2:
     lda zp_block1_hi
     ldx #05
     ldy #10
-    jsr print_hex
+    jsr print_hex_poke
     lda zp_block1_lo
     ldx #07
     ldy #10
-    jsr print_hex // draw memory locations
+    jsr print_hex_poke // draw memory locations
 
     lda zp_block2_hi
     ldx #13
     ldy #10
-    jsr print_hex
+    jsr print_hex_poke
     lda zp_block2_lo
     ldx #15
     ldy #10
-    jsr print_hex // draw memory locations
+    jsr print_hex_poke // draw memory locations
 
     lda zp_block3_hi
     ldx #21
     ldy #10
-    jsr print_hex
+    jsr print_hex_poke
     lda zp_block3_lo
     ldx #23
     ldy #10
-    jsr print_hex // draw memory location
+    jsr print_hex_poke // draw memory location
     
     lda zp_block4_hi
     ldx #29
     ldy #10
-    jsr print_hex
+    jsr print_hex_poke
     lda zp_block4_lo
     ldx #31
     ldy #10
-    jsr print_hex // draw memory locations
+    jsr print_hex_poke // draw memory locations
 
     lda zp_block_cmd_hi
     ldx #35
     ldy #10
-    jsr print_hex
+    jsr print_hex_poke
     lda zp_block_cmd_lo
     ldx #37
     ldy #10
-    jsr print_hex // draw memory locations    
+    jsr print_hex_poke // draw memory locations    
 
     rts
 
@@ -2168,16 +1927,13 @@ sprite_cursor_move:
     lda sprite_cursor
     adc #$03
     tax
-    ldy #17
     lda #$18
     sta zp_temp
-    lda #$31
-    sta zp_temp2
     lda #$00
     sta zp_temp3
     cpx #$00
 !scm_x:
-    beq !scm_y+
+    beq !scm_out+
     clc
     lda zp_temp
     adc #$08
@@ -2187,24 +1943,13 @@ sprite_cursor_move:
 !scm_x2:
     dex
     jmp !scm_x-
-!scm_y:
-    cpy #$00
-!scm_y:
-    beq !scm_out+
-    clc
-    lda zp_temp2
-    adc #$08
-    sta zp_temp2
-    dey
-    jmp !scm_y-
 !scm_out:
     lda zp_temp
     sta SPRITE_0_X
-    lda zp_temp2
+    lda #$b9             // constant Y ($31 + 17*8) - keep the cursor on the same line
     sta SPRITE_0_Y
     lda zp_temp3
     sta SPRITE_LOCATIONS_MSB
-!scm_x:
     rts
 
 sprite_cursor_blink:
@@ -2242,4 +1987,9 @@ sprite_init:
 // END OF PROGRAM
 ///////////////////////////////////////////////////
 
-#import "PrintSubRoutines.asm"
+#import "print.il.asm"
+#import "print/u_calculate_screen_pos.asm"
+#import "print/u_calculate_color_pos.asm"
+#import "print/print_hex.asm"
+#import "sys.il.asm"
+// #import "PrintSubRoutines.asm"

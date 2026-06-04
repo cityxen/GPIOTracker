@@ -88,6 +88,12 @@
 .var jcm_edit_cursor_y       = $2c0f
 .var jcm_fire_pressed        = $2c10
 .var jcm_fire_released       = $2c11
+
+// Dorktronic I2C device present? (1 = detected at startup, 0 = absent)
+// Used to skip I2C writes when no device responds, avoiding the I2C
+// ACK watchdog stall that otherwise makes input feel unresponsive.
+.var device_present          = $2c12
+
 .const jcm_max_modes = $02
     // Joystick control modes: (ALL JOYSTICK FUNCS ARE ON PORT 2)
     // 0 = OFF: off
